@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
  *
@@ -56,7 +57,7 @@ private final Conexao conexao;
     }
     
     private String editar(usuario usuario) {
-        String sql ="UPDATE categoria SET nome = ?, usuario = ?, senha = ?, perfil = ?, estado = ? WHERE id = ?";
+        String sql ="UPDATE usuario SET nome = ?, usuario = ?, senha = ?, perfil = ?, estado = ? WHERE id = ?";
         try {
             PreparedStatement preparedStatement = conexao.obterConexao().prepareStatement(sql);
             
@@ -72,9 +73,14 @@ private final Conexao conexao;
 }
 
     private void preencherValoresPreparedStatement(PreparedStatement preparedStatement, usuario usuario) throws SQLException {
+        
+       BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+       
+       String senhaCrypto = passwordEncoder.encode(usuario.getSenha());
+        
         preparedStatement.setString(1, usuario.getNome());
         preparedStatement.setString(2, usuario.getUsuario());
-        preparedStatement.setString(3, usuario.getSenha());
+        preparedStatement.setString(3, senhaCrypto);
         preparedStatement.setString(4, usuario.getPerfil().name());
         preparedStatement.setBoolean(5, usuario.isEstado());
         
